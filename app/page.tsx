@@ -1,37 +1,42 @@
 
+
 import Link from "next/link";
 import Button from "./components/Button";
+import Image from "next/image";
+import Realisations from "./realisations/page";
+import Apropos from "./a-propos/page";
+import Services from "./services/page";
+import PageContact from "./contact/page";
 
-const services = [
-  {
-    titre: "Stylisme",
-    description: "Conseils et accompagnement pour définir votre style."
-  },
-  {
-    titre: "Confection",
-    description: "Création de vêtements adaptés à vos envies."
-  },
-  {
-    titre: "Sur mesure",
-    description: "Création de vêtements adaptés à vos envies."
-  },
-];
 
 export default function Accueil() {
   return (
     <>
       {/* Hero */}
-      <section className="bg-brand-50 py-20 md:py-28">
-        <div className="mx-auto max-w-6xl px-4">
+     <section className="relative overflow-hidden bg-brand-50 py-20 md:py-28">
+        {/* 1. Image d'arrière-plan */}
+        <Image
+          src="/hero-bg.jpg"
+          alt="Atelier Élégance"
+          fill
+          priority
+          className="object-cover object-center"
+        />
+
+        {/* 2. Calque clair semi-transparent (bg-white/80 ou bg-brand-50/85) */}
+        <div className="absolute inset-0 bg-brand-50/80" />
+
+        {/* 3. Contenu texte au premier plan */}
+        <div className="relative z-10 mx-auto max-w-6xl px-4">
           <p className="font-medium text-brand-600">
             Atelier Élégance
           </p>
 
-          <h1 className="mt-3 max-w-3xl text-4xl font-bold tracking-tight md:text-6xl">
+          <h1 className="mt-3 max-w-3xl text-4xl font-bold tracking-tight text-slate-900 md:text-6xl">
             Révélez votre élégance, affirmez votre style.
           </h1>
 
-          <p className="mt-5 max-w-xl text-lg text-slate-600">
+          <p className="mt-5 max-w-xl text-lg text-slate-700">
             Chez Atelier Élégance, nous donnons vie à vos envies à travers des créations uniques
             qui reflètent votre personnalité. 
             Découvrez un univers où créativité, élégance et savoir-faire se rencontrent.
@@ -46,28 +51,17 @@ export default function Accueil() {
         </div>
       </section>
 
-      {/* Services */}
-      <section className="py-16 md:py-24">
-        <div className="mx-auto max-w-6xl px-4">
-          <h2 className="text-3xl font-bold tracking-tight">
-            Nos services
-          </h2>
+      {/* A propos */}
+      <Apropos/>
 
-          <div className="mt-10 grid gap-6 md:grid-cols-3 border border-brand-600 rounded-xl p-6 bg-brand-600">
-            {services.map((s) => (
-              <div
-                key={s.titre}
-                className="rounded-xl border border-slate-200 p-6 bg-white shadow-sm transition hover:shadow-md"
-              >
-                
-                <h3 className="text-lg font-semibold">{s.titre}</h3>
-                <p className="mt-2 text-slate-600">{s.description}</p>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-            
+      {/* Services */}
+      <Services/>
+
+      {/* Réalisations */}
+      <Realisations/>   
+
+      {/* Contact  */}
+      <PageContact/>
     </>
   );
 }
