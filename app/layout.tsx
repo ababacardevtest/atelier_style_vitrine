@@ -9,7 +9,26 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: { default: "Atelier de l'Élégance - Style - Habillement - Création", template: "%s | Atelier de l'Elegance" },
-  description: "Portfolio et services d'un développeur web fullStack & freelance.",
+  description:
+    "Atelier de l'Élégance vous accompagne de la création stylistique à la confection sur-mesure. Découvrez des tenues uniques alliant savoir-faire artisanal et raffinement.",
+  keywords: [
+    "stylisme",
+    "confection",
+    "sur-mesure",
+    "atelier de couture",
+    "création de mode",
+    "habillement",
+    "tenue sur mesure",
+    "Dakar",
+  ],
+  openGraph: {
+    title: "Atelier de l'Élégance - Style - Habillement - Création",
+    description:
+      "De la conception créative à la confection sur-mesure, donnez vie à vos envies vestimentaires avec Atelier de l'Élégance.",
+    siteName: "Atelier de l'Élégance",
+    locale: "fr_FR",
+    type: "website",
+  },
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode}) {
