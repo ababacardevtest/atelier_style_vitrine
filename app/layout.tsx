@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import Navbar from "./components/Navbar";
 import "./globals.css";
 import Footer from "./components/Footer";
+import NextTopLoader from "nextjs-toploader";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -15,6 +16,11 @@ export default function RootLayout({ children }: { children: React.ReactNode}) {
   return (
     <html lang="fr">
       <body className={`${inter.className} bg-white text-slate-900`}>
+        <NextTopLoader
+          color="#b26c22" // Remplacez par le code hexadécimal de votre couleur brand-600
+          height={3}
+          showSpinner={false}
+        />
         <Navbar />
         <main>{children}</main>
         <Footer />

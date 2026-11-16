@@ -36,7 +36,7 @@ export default function Realisations() {
         <h2 className="text-3xl font-bold tracking-tight">Nos réalisations</h2>
 
         {/* Grille des réalisations */}
-        <div className="mt-10 grid gap-6 md:grid-cols-3 border border-brand-600 rounded-xl p-4 md:p-6 bg-brand-300">
+        <div className="mt-10 grid gap-6 md:grid-cols-3 border border-brand-700 rounded-xl p-4 md:p-6 bg-brand-700">
           {realisations.map((r) => (
             <div
               key={r.titre}
