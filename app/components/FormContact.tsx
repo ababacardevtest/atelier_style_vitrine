@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { envoyerEmailContact } from "../actions/sendEmail"; // Ajustez le chemin si besoin
 
 type FormData = {
   nom: string;
@@ -13,6 +14,9 @@ type FormErrors = Partial<Record<keyof FormData, string>>;
 
 export default function FormContact() {
   const [envoye, setEnvoye] = useState(false);
+  const [enCours, setEnCours] = useState(false);
+  const [erreurServeur, setErreurServeur] = useState<string | null>(null);
+
   const [valeurs, setValeurs] = useState<FormData>({
     nom: "",
     email: "",
@@ -22,7 +26,6 @@ export default function FormContact() {
   const [erreurs, setErreurs] = useState<FormErrors>({});
   const [touches, setTouches] = useState<Partial<Record<keyof FormData, boolean>>>({});
 
-  // Règles de validation personnalisées
   const validerChamp = (nomChamp: keyof FormData, valeur: string): string => {
     const val = valeur.trim();
 
@@ -35,7 +38,8 @@ export default function FormContact() {
       case "email":
         if (!val) return "L'adresse email est obligatoire.";
         const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        if (!emailRegex.test(val)) return "Veuillez saisir une adresse email valide (ex. nom@domaine.com).";
+        if (!emailRegex.test(val))
+          return "Veuillez saisir une adresse email valide (ex. nom@domaine.com).";
         return "";
 
       case "sujet":
@@ -53,7 +57,6 @@ export default function FormContact() {
     }
   };
 
-  // Mise à jour lors de la saisie
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -62,7 +65,6 @@ export default function FormContact() {
 
     setValeurs((prev) => ({ ...prev, [champ]: value }));
 
-    // Si le champ a déjà été touché, on met à jour l'erreur en direct
     if (touches[champ]) {
       setErreurs((prev) => ({
         ...prev,
@@ -71,7 +73,6 @@ export default function FormContact() {
     }
   };
 
-  // Validation quand l'utilisateur quitte le champ (onBlur)
   const handleBlur = (
     e: React.FocusEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
@@ -83,9 +84,9 @@ export default function FormContact() {
     }));
   };
 
-  // Validation globale à la soumission
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+    setErreurServeur(null);
 
     const nouvellesErreurs: FormErrors = {
       nom: validerChamp("nom", valeurs.nom),
@@ -97,18 +98,28 @@ export default function FormContact() {
     setErreurs(nouvellesErreurs);
     setTouches({ nom: true, email: true, sujet: true, message: true });
 
-    // Vérifie s'il reste au moins une erreur non vide
     const aDesErreurs = Object.values(nouvellesErreurs).some((msg) => msg !== "");
     if (aDesErreurs) return;
 
-    // Tout est valide : envoi du formulaire
+    // Début de l'envoi réel
+    setEnCours(true);
+
+    const resultat = await envoyerEmailContact(valeurs);
+
+    setEnCours(false);
+
+    if (!resultat.success) {
+      setErreurServeur(resultat.error || "Une erreur est survenue.");
+      return;
+    }
+
+    // Succès
     setEnvoye(true);
     setValeurs({ nom: "", email: "", sujet: "", message: "" });
     setTouches({});
     setErreurs({});
   };
 
-  // Fonction utilitaire pour le style dynamique des champs
   const getInputClass = (champ: keyof FormData) => {
     const enErreur = touches[champ] && erreurs[champ];
     return `mt-1.5 w-full rounded-lg border px-4 py-2.5 text-slate-900 transition focus:outline-none focus:ring-2 ${
@@ -139,8 +150,14 @@ export default function FormContact() {
   }
 
   return (
-    /* "noValidate" désactive les bulles moches du navigateur */
     <form onSubmit={handleSubmit} noValidate className="space-y-5">
+      {/* Alerte globale si le serveur renvoie une erreur */}
+      {erreurServeur && (
+        <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm font-medium text-red-700">
+          ⚠ {erreurServeur}
+        </div>
+      )}
+
       {/* Nom complet */}
       <div>
         <label htmlFor="nom" className="block text-sm font-medium text-slate-700">
@@ -150,6 +167,7 @@ export default function FormContact() {
           type="text"
           id="nom"
           name="nom"
+          disabled={enCours}
           value={valeurs.nom}
           onChange={handleChange}
           onBlur={handleBlur}
@@ -173,6 +191,7 @@ export default function FormContact() {
           type="email"
           id="email"
           name="email"
+          disabled={enCours}
           value={valeurs.email}
           onChange={handleChange}
           onBlur={handleBlur}
@@ -196,6 +215,7 @@ export default function FormContact() {
           type="text"
           id="sujet"
           name="sujet"
+          disabled={enCours}
           value={valeurs.sujet}
           onChange={handleChange}
           onBlur={handleBlur}
@@ -219,6 +239,7 @@ export default function FormContact() {
           id="message"
           name="message"
           rows={4}
+          disabled={enCours}
           value={valeurs.message}
           onChange={handleChange}
           onBlur={handleBlur}
@@ -233,12 +254,20 @@ export default function FormContact() {
         )}
       </div>
 
-      {/* Bouton Envoyer le message */}
+      {/* Bouton Envoyer avec état de chargement */}
       <button
         type="submit"
-        className="w-full cursor-pointer rounded-lg bg-brand-600 px-6 py-3 font-semibold text-white transition hover:bg-brand-700"
+        disabled={enCours}
+        className="flex w-full cursor-pointer items-center justify-center gap-2 rounded-lg bg-brand-600 px-6 py-3 font-semibold text-white transition hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
       >
-        Envoyer le message
+        {enCours ? (
+          <>
+            <span className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+            Envoi en cours...
+          </>
+        ) : (
+          "Envoyer le message"
+        )}
       </button>
     </form>
   );
